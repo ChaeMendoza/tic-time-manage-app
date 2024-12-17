@@ -1,16 +1,18 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
-import { useState } from "react";
+import { useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 function LoginPage() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const emailRef = useRef();
+    const passwordRef = useRef();
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const email = emailRef.current.value;
+        const password = passwordRef.current.value;
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             console.log("Inicio de sesión exitoso:", userCredential.user);
@@ -45,9 +47,8 @@ function LoginPage() {
                         id="email" 
                         name="email" 
                         className="mt-1 block w-full p-2 border border-gray-300 rounded" 
-                        required 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)}    
+                        ref={emailRef}
+                        required     
                     />
                 </div>
                 <div>
@@ -57,9 +58,8 @@ function LoginPage() {
                         id="password" 
                         name="password" 
                         className="mt-1 block w-full p-2 border border-gray-300 rounded" 
+                        ref={passwordRef}
                         required 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
                 <button type="submit" className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Entrar</button>
