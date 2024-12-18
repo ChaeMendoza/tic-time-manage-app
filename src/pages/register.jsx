@@ -2,9 +2,9 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
-function ResgisterPage() {
+function RegisterPage() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const navigate = useNavigate();
@@ -15,58 +15,70 @@ function ResgisterPage() {
         const password = passwordRef.current.value;
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            console.log("Usuario registrado:", userCredential.user);
             Swal.fire({
-                title: "Good job!",
-                text: "Registro exitoso",
-                icon: "success"
+                title: "Registro exitoso",
+                text: "¡Cuenta creada correctamente!",
+                icon: "success",
+                confirmButtonColor: "#4CAF50",
             });
-            navigate('/dashboard');
+            navigate("/dashboard");
         } catch (error) {
-            console.error("Error al registrar:", error.message);
-            const errorMessage = "Error: " + error.message;
             Swal.fire({
                 icon: "error",
-                title: "Oops...",
-                text: errorMessage,
+                title: "Error",
+                text: `No se pudo registrar: ${error.message}`,
+                confirmButtonColor: "#F56565",
             });
         }
-    }
+    };
 
     return (
-        <>
-            <header className="bg-green-600 text-white py-4 text-center">
-                <h1 className="text-3xl font-bold">Crear Cuenta</h1>
-            </header>
-            <main className="max-w-md mx-auto bg-white p-6 mt-8 shadow rounded">
-                <form id="registerForm" className="space-y-4" onSubmit={handleSubmit}>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-400 to-pink-500">
+            <div className="bg-white shadow-lg rounded-lg max-w-md w-full p-8">
+                <h1 className="text-2xl font-extrabold text-gray-800 text-center mb-6">Crear Cuenta</h1>
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
-                        <label for="email" className="block text-sm font-medium text-gray-700">Correo Electrónico:</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded" 
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            Correo Electrónico
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
                             ref={emailRef}
-                            required     
+                            required
+                            className="mt-2 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                         />
                     </div>
                     <div>
-                        <label for="password" className="block text-sm font-medium text-gray-700">Contraseña:</label>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            className="mt-1 block w-full p-2 border border-gray-300 rounded" 
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            Contraseña
+                        </label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
                             ref={passwordRef}
-                            required 
+                            required
+                            className="mt-2 block w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition"
                         />
                     </div>
-                    <button type="submit" className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Registrar</button>
+                    <button
+                        type="submit"
+                        className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-lg shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105"
+                    >
+                        Registrar
+                    </button>
                 </form>
-            </main>
-        </>
-    )
+                <p className="mt-6 text-sm text-center text-gray-600">
+                    ¿Ya tienes cuenta?{" "}
+                    <a href="/login" className="text-purple-600 font-medium hover:underline">
+                        Inicia sesión aquí
+                    </a>
+                </p>
+            </div>
+        </div>
+    );
 }
 
-export default ResgisterPage
+export default RegisterPage;
