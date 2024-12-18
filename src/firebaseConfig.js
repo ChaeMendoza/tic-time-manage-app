@@ -2,11 +2,9 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore } from "firebase/firestore"; // Importa Firestore
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Tu configuración actual de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyALBPNmA6SWxjetFE0eEj-KzFVwNWSTnlQ",
   authDomain: "tic-time-app.firebaseapp.com",
@@ -17,7 +15,8 @@ const firebaseConfig = {
   measurementId: "G-69GK61ZWYQ"
 };
 
-// Initialize Firebase
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 export const auth = getAuth(app);
+export const db = getFirestore(app); // Exporta Firestore

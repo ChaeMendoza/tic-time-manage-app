@@ -20,7 +20,7 @@ function App() {
         path='/dashboard' 
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <DashboardPage />
+            <DashboardPage></DashboardPage>
           </ProtectedRoute>
         } 
       />
