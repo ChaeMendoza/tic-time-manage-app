@@ -3,18 +3,17 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig'; 
 
 export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true); // Nuevo estado para manejar el retraso
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user); // Si hay usuario, está autenticado
-      setLoading(false); // Autenticación validada
+      setUser(user); // Guardar el usuario autenticado o null si no está autenticado
+      setLoading(false); // Estado de carga terminado
     });
 
     return () => unsubscribe();
   }, []);
 
-  return { isAuthenticated, loading };
+  return { user, isAuthenticated: !!user, loading };
 };
-
