@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "../firebaseConfig";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import DeleteTask from "../components/Delete.jsx";
+import EditTask from "../components/Edit.jsx";
 
 function DashboardPage() {
     const [tasks, setTasks] = useState([]);
@@ -100,7 +102,11 @@ function DashboardPage() {
                         {tasks.map((task) => (
                             <li key={task.id} className="p-4 flex justify-between items-center hover:bg-gray-50">
                                 <span>{task.title}</span>
-                            </li>
+                                <div className="flex justify-between items-center">
+                                    <EditTask />
+                                    <DeleteTask />
+                                </div> 
+                            </li> 
                         ))}
                     </ul>
                 ) : (
