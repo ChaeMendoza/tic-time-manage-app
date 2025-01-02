@@ -108,27 +108,33 @@ function DashboardPage() {
 
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800">
-        <header className="bg-green-600 text-white py-4 px-8 flex justify-between items-center shadow-lg">
-            <h1 className="text-3xl font-bold">
-                Bienvenido, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
-            </h1>
-            <div className="flex justify-center items-center gap-4">
-                <div className="flex items-center">
-                    <CoffeeDonation />
-                </div>
-                <button
-                    onClick={handleSignOut}
-                    className="px-4 py-2 bg-white text-green-600 font-semibold rounded-lg shadow-md hover:bg-green-100 transition-all"
-                >
-                    Cerrar sesión
-                </button>
+        <header className="bg-green-600 text-white py-4 px-8 flex flex-col sm:flex-row justify-between items-center shadow-lg">
+          <h1 className="text-3xl font-bold mb-4 sm:mb-0">
+            Bienvenido, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
+          </h1>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+            {/* Icono de CoffeeDonation (siempre visible) */}
+            <div className="flex items-center">
+              <CoffeeDonation />
             </div>
+
+            {/* Botón de cerrar sesión */}
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 bg-white text-green-600 font-semibold rounded-lg shadow-md hover:bg-green-100 transition-all"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </header>
 
+
         <main className="flex-grow w-full mt-8 p-3">
+          {/* Sección para agregar tareas */}
           <div className="mb-6">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Tus Tareas</h2>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <input
                 type="text"
                 value={newTask}
@@ -138,51 +144,54 @@ function DashboardPage() {
               />
               <button
                 onClick={handleAddTask}
-                className="px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
+                className="mt-4 sm:mt-0 sm:px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
               >
                 Agregar
               </button>
             </div>
           </div>
 
-          {tasks.map((task) => (
-            <li key={task.id} className="bg-gray-50 p-4 mt-2 flex justify-between items-center hover:bg-gray-50">
-              {editingTask?.id === task.id ? (
-                <div className="flex-grow">
-                  <input
-                    type="text"
-                    value={editedTaskTitle}
-                    onChange={(e) => setEditedTaskTitle(e.target.value)}
-                    className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <div className="flex mt-2 gap-2">
-                    <button
-                      onClick={handleConfirmEdit}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all"
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 transition-all"
-                    >
-                      Cancelar
-                    </button>
+          {/* Lista de tareas */}
+          <ul>
+            {tasks.map((task) => (
+              <li key={task.id} className="bg-gray-50 p-4 mt-2 flex justify-between items-center hover:bg-gray-100 rounded-lg shadow-sm">
+                {editingTask?.id === task.id ? (
+                  <div className="flex-grow">
+                    <input
+                      type="text"
+                      value={editedTaskTitle}
+                      onChange={(e) => setEditedTaskTitle(e.target.value)}
+                      className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <div className="flex mt-2 gap-2">
+                      <button
+                        onClick={handleConfirmEdit}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all"
+                      >
+                        Guardar
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 transition-all"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  <span>{task.title}</span>
-                  <div className="flex gap-4">
-                    <EditTask onEdit={() => handleEditClick(task)} />
-                    <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
-
+                ) : (
+                  <>
+                    <span>{task.title}</span>
+                    <div className="flex gap-4">
+                      <EditTask onEdit={() => handleEditClick(task)} />
+                      <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
+                    </div>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
         </main>
+
 
         <Footer />
       </div>
