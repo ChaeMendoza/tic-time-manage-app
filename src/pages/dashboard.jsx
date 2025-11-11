@@ -1,201 +1,290 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "../firebaseConfig";
-import { collection, addDoc, query, where, getDocs, deleteDoc, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import DeleteTask from "../components/Delete.jsx";
 import EditTask from "../components/Edit.jsx";
 import Footer from "../components/Footer.jsx";
 import CoffeeDonation from "../components/CoffeeDonation";
+import { FaTasks, FaCheckCircle, FaClock } from "react-icons/fa";
 
 function DashboardPage() {
-    const [tasks, setTasks] = useState([]);
-    const [newTask, setNewTask] = useState("");
-    const [editingTask, setEditingTask] = useState(null);
-    const [editedTaskTitle, setEditedTaskTitle] = useState("");
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
-    const auth = getAuth();
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [editedTaskTitle, setEditedTaskTitle] = useState("");
+  const [user, setUser] = useState(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+  const auth = getAuth();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            if (currentUser) {
-                setUser(currentUser);
-                fetchTasks(currentUser.uid);
-            } else {
-                navigate("/login");
-            }
-        });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        fetchTasks(currentUser.uid);
+      } else {
+        navigate("/login");
+      }
+    });
 
-        return () => unsubscribe();
-    }, [auth, navigate]);
+    return () => unsubscribe();
+  }, [auth, navigate]);
 
-    const fetchTasks = async (uid) => {
-        try {
-            const q = query(collection(db, "tasks"), where("userId", "==", uid));
-            const querySnapshot = await getDocs(q);
-            const userTasks = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            setTasks(userTasks);
-        } catch (error) {
-            console.error("Error fetching tasks:", error);
-        }
-    };
+  // Detectar scroll para sombra dinámica
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    const handleAddTask = async () => {
-        if (!newTask.trim()) return;
-
-        try {
-            const taskData = {
-                title: newTask,
-                userId: user.uid,
-                createdAt: new Date(),
-            };
-            const docRef = await addDoc(collection(db, "tasks"), taskData);
-            setTasks([...tasks, { id: docRef.id, ...taskData }]);
-            setNewTask("");
-        } catch (error) {
-            console.error("Error adding task:", error);
-        }
-    };
-
-    const handleEditClick = (task) => {
-        setEditingTask(task);
-        setEditedTaskTitle(task.title);
+  const fetchTasks = async (uid) => {
+    try {
+      const q = query(collection(db, "tasks"), where("userId", "==", uid));
+      const querySnapshot = await getDocs(q);
+      const userTasks = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTasks(userTasks);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
     }
+  };
 
-    const handleConfirmEdit = async () => {
-        try {
-            const taskRef = doc(db, "tasks", editingTask.id);
-            await updateDoc(taskRef, { title: editedTaskTitle });
+  const handleAddTask = async () => {
+    if (!newTask.trim()) return;
 
-            setTasks((prevTasks) => 
-                prevTasks.map((task) =>
-                    task.id === editingTask.id ? { ...task, title: editedTaskTitle } : task
-                )
-            );
-
-            setEditingTask(null); // Cerramos el modo de edicion
-            setEditedTaskTitle(""); // Reseteamos el titulo
-        } catch (error) {
-            console.error("Error updating task:", error);
-        }
-    };
-
-    const handleCancelEdit = () => {
-        setEditingTask(null);
-        setEditedTaskTitle("");
+    try {
+      const taskData = {
+        title: newTask,
+        userId: user.uid,
+        completed: false,
+        createdAt: new Date(),
+      };
+      const docRef = await addDoc(collection(db, "tasks"), taskData);
+      setTasks([...tasks, { id: docRef.id, ...taskData }]);
+      setNewTask("");
+    } catch (error) {
+      console.error("Error adding task:", error);
     }
-    
-    const handleDeleteTask = async (taskId) => {
-        try {
-            // Eliminar la tarea de Firestore
-            await deleteDoc(doc(db, "tasks", taskId));
-            // Actualizamos el estado de las tareas eliminando la tarea del array
-            setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-        } catch (error) {
-            console.log("Error deliting task:", error);
-        }
+  };
+
+  const toggleComplete = async (taskId, currentState) => {
+    const taskRef = doc(db, "tasks", taskId);
+    await updateDoc(taskRef, { completed: !currentState });
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, completed: !currentState } : t
+      )
+    );
+  };
+
+  const handleEditClick = (task) => {
+    setEditingTask(task);
+    setEditedTaskTitle(task.title);
+  };
+
+  const handleConfirmEdit = async () => {
+    try {
+      const taskRef = doc(db, "tasks", editingTask.id);
+      await updateDoc(taskRef, { title: editedTaskTitle });
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === editingTask.id
+            ? { ...task, title: editedTaskTitle }
+            : task
+        )
+      );
+
+      setEditingTask(null);
+      setEditedTaskTitle("");
+    } catch (error) {
+      console.error("Error updating task:", error);
     }
+  };
 
-    const handleSignOut = () => {
-        signOut(auth).then(() => {
-            navigate("/login");
-        });
-    };
+  const handleCancelEdit = () => {
+    setEditingTask(null);
+    setEditedTaskTitle("");
+  };
 
-    return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800">
-        <header className="bg-green-600 text-white py-4 px-8 flex flex-col sm:flex-row justify-between items-center shadow-lg">
-          <h1 className="text-3xl font-bold mb-4 sm:mb-0">
-            Bienvenido, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
-          </h1>
-          
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
-            {/* Icono de CoffeeDonation (siempre visible) */}
-            <div className="flex items-center">
-              <CoffeeDonation />
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await deleteDoc(doc(db, "tasks", taskId));
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.log("Error deleting task:", error);
+    }
+  };
+
+  const handleSignOut = () => {
+    signOut(auth).then(() => {
+      navigate("/login");
+    });
+  };
+
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+  const pendingTasks = totalTasks - completedTasks;
+
+  const motivationalPhrases = [
+    "¡Un pequeño paso cada día cuenta!",
+    "Organiza tu tiempo, conquista tu día.",
+    "Tu productividad define tu éxito.",
+    "Cada tarea completada es una victoria.",
+  ];
+  const phrase =
+    motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800">
+      {/* HEADER FIJO */}
+      <header
+        className={`fixed top-0 left-0 w-full bg-green-600 text-white py-4 px-8 flex flex-col sm:flex-row justify-between items-center z-50 transition-shadow ${
+          isScrolled ? "shadow-xl" : "shadow-md"
+        }`}
+      >
+        <h1 className="text-3xl font-bold mb-4 sm:mb-0">
+          Hola, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
+        </h1>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+			Calendario
+          <CoffeeDonation />
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-white text-green-700 font-semibold rounded-lg shadow hover:bg-green-100 transition-all"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      </header>
+
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="flex-grow w-full mt-24 p-4 max-w-5xl mx-auto">
+        {/* Frase motivacional */}
+        <div className="text-center mb-8">
+          <p className="text-lg font-medium text-gray-700 italic">{phrase}</p>
+        </div>
+
+        {/* Estadísticas */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white rounded-xl shadow p-5 flex items-center gap-4">
+            <FaTasks className="text-green-600 text-2xl" />
+            <div>
+              <h3 className="font-semibold text-gray-700">Total</h3>
+              <p className="text-xl font-bold">{totalTasks}</p>
             </div>
+          </div>
 
-            {/* Botón de cerrar sesión */}
+          <div className="bg-white rounded-xl shadow p-5 flex items-center gap-4">
+            <FaCheckCircle className="text-blue-600 text-2xl" />
+            <div>
+              <h3 className="font-semibold text-gray-700">Completadas</h3>
+              <p className="text-xl font-bold">{completedTasks}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-5 flex items-center gap-4">
+            <FaClock className="text-yellow-600 text-2xl" />
+            <div>
+              <h3 className="font-semibold text-gray-700">Pendientes</h3>
+              <p className="text-xl font-bold">{pendingTasks}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Agregar tarea */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+            Tus tareas
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              value={newTask}
+              onChange={(e) => setNewTask(e.target.value)}
+              placeholder="Nueva tarea..."
+              className="flex-grow p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
             <button
-              onClick={handleSignOut}
-              className="px-4 py-2 bg-white text-green-600 font-semibold rounded-lg shadow-md hover:bg-green-100 transition-all"
+              onClick={handleAddTask}
+              className="mt-4 sm:mt-0 sm:px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
             >
-              Cerrar sesión
+              Agregar
             </button>
           </div>
-        </header>
+        </div>
 
-
-        <main className="flex-grow w-full mt-8 p-3">
-          {/* Sección para agregar tareas */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Tus Tareas</h2>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input
-                type="text"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                placeholder="Nueva tarea"
-                className="flex-grow p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <button
-                onClick={handleAddTask}
-                className="mt-4 sm:mt-0 sm:px-6 py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-all"
-              >
-                Agregar
-              </button>
-            </div>
-          </div>
-
-          {/* Lista de tareas */}
-          <ul>
-            {tasks.map((task) => (
-              <li key={task.id} className="bg-gray-50 p-4 mt-2 flex justify-between items-center hover:bg-gray-100 rounded-lg shadow-sm">
-                {editingTask?.id === task.id ? (
-                  <div className="flex-grow">
-                    <input
-                      type="text"
-                      value={editedTaskTitle}
-                      onChange={(e) => setEditedTaskTitle(e.target.value)}
-                      className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <div className="flex mt-2 gap-2">
-                      <button
-                        onClick={handleConfirmEdit}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all"
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg shadow-md hover:bg-gray-400 transition-all"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
+        {/* Lista de tareas */}
+        <ul>
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className={`bg-white p-4 mt-3 flex justify-between items-center rounded-lg shadow-sm hover:shadow-md transition-all ${
+                task.completed ? "opacity-70 line-through" : ""
+              }`}
+            >
+              {editingTask?.id === task.id ? (
+                <div className="flex-grow">
+                  <input
+                    type="text"
+                    value={editedTaskTitle}
+                    onChange={(e) => setEditedTaskTitle(e.target.value)}
+                    className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="flex mt-2 gap-2">
+                    <button
+                      onClick={handleConfirmEdit}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                    >
+                      Guardar
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
+                    >
+                      Cancelar
+                    </button>
                   </div>
-                ) : (
-                  <>
-                    <span>{task.title}</span>
-                    <div className="flex gap-4">
-                      <EditTask onEdit={() => handleEditClick(task)} />
-                      <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
-                    </div>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        </main>
+                </div>
+              ) : (
+                <>
+                  <span
+                    onClick={() => toggleComplete(task.id, task.completed)}
+                    className={`cursor-pointer select-none ${
+                      task.completed ? "text-gray-500" : "text-gray-800"
+                    }`}
+                  >
+                    {task.title}
+                  </span>
+                  <div className="flex gap-4">
+                    <EditTask onEdit={() => handleEditClick(task)} />
+                    <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      </main>
 
-
-        <Footer />
-      </div>
-    );
+      <Footer />
+    </div>
+  );
 }
 
 export default DashboardPage;
