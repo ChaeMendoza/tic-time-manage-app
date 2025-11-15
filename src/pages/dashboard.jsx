@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -15,25 +14,27 @@ import {
 } from "firebase/firestore";
 import DeleteTask from "../components/Delete.jsx";
 import EditTask from "../components/Edit.jsx";
+import PomodoroTask from "../components/PomodoroTask.jsx";
 import Footer from "../components/Footer.jsx";
 import CoffeeDonation from "../components/CoffeeDonation";
 import { FaTasks, FaCheckCircle, FaClock } from "react-icons/fa";
 
 function DashboardPage() {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState("");
-  const [editingTask, setEditingTask] = useState(null);
-  const [editedTaskTitle, setEditedTaskTitle] = useState("");
-  const [user, setUser] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const navigate = useNavigate();
+    const [tasks, setTasks] = useState([]);
+    const [newTask, setNewTask] = useState("");
+    const [editingTask, setEditingTask] = useState(null);
+    const [editedTaskTitle, setEditedTaskTitle] = useState("");
+    const [user, setUser] = useState(null);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [pomodoroTask, setPomodoroTask] = useState(null);
+    const navigate = useNavigate();
   const auth = getAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        fetchTasks(currentUser.uid);
+        fetchTasks(currentUser.uid).then(r => console.log("SKD", r));
       } else {
         navigate("/login");
       }
@@ -149,7 +150,16 @@ function DashboardPage() {
   const phrase =
     motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
 
-  return (
+    const openPomodoro = (task) => {
+        setPomodoroTask(task);
+    };
+
+    const closePomodoro = () => {
+        setPomodoroTask(null);
+    };
+
+
+    return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800">
       {/* HEADER FIJO */}
       <header
@@ -272,8 +282,14 @@ function DashboardPage() {
                     {task.title}
                   </span>
                   <div className="flex gap-4">
-                    <EditTask onEdit={() => handleEditClick(task)} />
-                    <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
+                      <EditTask onEdit={() => handleEditClick(task)} />
+                      <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
+                      <button
+                          onClick={() => openPomodoro(task)}
+                          className="text-red-500 hover:text-red-700 font-bold"
+                      >
+                          Pomodoro
+                      </button>
                   </div>
                 </>
               )}
@@ -281,8 +297,10 @@ function DashboardPage() {
           ))}
         </ul>
       </main>
-
-      <Footer />
+        {pomodoroTask && (
+            <PomodoroTask task={pomodoroTask} onClose={closePomodoro} />
+        )}
+        <Footer />
     </div>
   );
 }

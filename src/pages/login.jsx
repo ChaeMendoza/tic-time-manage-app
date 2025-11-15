@@ -2,13 +2,13 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Swal from "sweetalert2";
+import Seal from "sweetalert2";
 import Navbar from "../components/Header.jsx";
 import Footer from "../components/Footer";
 
 function LoginPage() {
-  const emailRef = useRef();
-  const passwordRef = useRef();
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -18,7 +18,7 @@ function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      Swal.fire({
+      await Seal.fire({
         title: "Inicio exitoso",
         text: "¡Bienvenido de nuevo!",
         icon: "success",
@@ -26,7 +26,7 @@ function LoginPage() {
       });
       navigate("/dashboard");
     } catch (error) {
-      Swal.fire({
+      await Seal.fire({
         icon: "error",
         title: "Error",
         text: `No se pudo iniciar sesión: ${error.message}`,
