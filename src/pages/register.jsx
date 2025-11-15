@@ -6,6 +6,7 @@ import { doc, setDoc } from "firebase/firestore";
 import Seal from "sweetalert2";
 import Navbar from "../components/Header.jsx";
 import Footer from "../components/Footer";
+import LogoIcon from "../assets/logo-icon.jpg";
 
 function RegisterPage() {
     const nameRef = useRef(null);
@@ -107,17 +108,25 @@ function RegisterPage() {
             <Navbar />
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-100 via-green-400 to-cyan-600">
                 <div className="relative w-full max-w-md bg-white/90 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl p-8">
+                    <div className="flex justify-center items-center">
+                        <img
+                            src={LogoIcon || ""}
+                            className="w-32 rounded-full"
+                            alt="Logo icon TicTime Manage App"
+                        />
+                    </div>
                     <h2 className="text-2xl font-bold text-center text-gray-800">Crea tu cuenta</h2>
                     <p className="text-center text-gray-500 mb-6">Empieza a organizar tu tiempo hoy</p>
 
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Nombre completo</label>
+                            <label className="block text-sm font-medium text-gray-700">Nombre de usuario</label>
                             <input
                                 ref={nameRef}
                                 type="text"
                                 className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
+			                <span className="text-gray-500 text-xs">El nombre debe tener al menos 3 letras y ningún simbolo.</span>
                         </div>
 
                         <div>
@@ -136,6 +145,7 @@ function RegisterPage() {
                                 type="password"
                                 className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                             />
+			                <span className="text-gray-500 text-xs">La contraseña debe tener mínimo 6 caracteres, una mayuscula, una minuscula y un número.</span>
                         </div>
 
                         <button
