@@ -1,4 +1,5 @@
 import { FaTrash } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 function DeleteTask({ onDelete }) {
   return (
@@ -9,6 +10,10 @@ function DeleteTask({ onDelete }) {
       <FaTrash />
     </div>
   )
+}
+
+DeleteTask.propTypes = {
+  onDelete: PropTypes.func.isRequired,
 }
 
 export default DeleteTask;

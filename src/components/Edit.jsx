@@ -1,4 +1,5 @@
 import { BiSolidEditAlt } from "react-icons/bi";
+import PropTypes from "prop-types";
 
 function EditTask({ onEdit }) {
   return (
@@ -8,7 +9,11 @@ function EditTask({ onEdit }) {
     >
       <BiSolidEditAlt />
     </div>
-  );
+  )
 }
+
+EditTask.propTypes = {
+  onEdit: PropTypes.func.isRequired,
+};
 
 export default EditTask;

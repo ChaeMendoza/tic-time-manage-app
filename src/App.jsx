@@ -6,6 +6,7 @@ import LoginPage from './pages/login.jsx';
 import DashboardPage from './pages/dashboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { useAuth } from './hooks/useAuth';
+import CalendarPage from './pages/calendar.jsx';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -15,6 +16,7 @@ function App() {
       <Route exact path='/' element={<Home />} />
       <Route exact path='/register' element={<ResgisterPage />}/>
       <Route exact path='/login' element={<LoginPage />}/>
+      <Route exact path='/calendar' element={<CalendarPage />}/>
       <Route 
         exact 
         path='/dashboard' 

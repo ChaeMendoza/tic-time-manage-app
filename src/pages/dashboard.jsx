@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from "../firebaseConfig";
 import {
@@ -27,6 +27,7 @@ function DashboardPage() {
     const [user, setUser] = useState(null);
     const [isScrolled, setIsScrolled] = useState(false);
     const [pomodoroTask, setPomodoroTask] = useState(null);
+    const [pomodoroMode, setPomodoroMode] = useState(false);
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -156,6 +157,14 @@ function DashboardPage() {
         setPomodoroTask(null);
     };
 
+    const handlePomodoroMode = () => {
+        setPomodoroMode((prev) => {
+            const next = !prev;
+            console.log("pomodoroMode ->", next);
+            return next;
+        });
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800">
             <header
@@ -167,7 +176,9 @@ function DashboardPage() {
                     Hola, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
-                    Calendario
+                    <Link to="/calendar">
+                        Calendario
+                    </Link>
                     <CoffeeDonation />
                     <button
                         onClick={handleSignOut}
@@ -210,6 +221,12 @@ function DashboardPage() {
                         </div>
                     </div>
                 </div>
+                {/* Caraterísticas */}
+                <div className="flex justify-center items-center">
+                    <button onClick={handlePomodoroMode} className="px-4 py-2 bg-yellow-400 text-green-800 font-semibold rounded-lg shadow-md hover:bg-yellow-500 transition-all flex items-center">
+                        {pomodoroMode ? "Desactivar Técnica Pomodoro" : "Activar Técnica Pomodoro"}
+                    </button>
+                </div>
 
                 {/* Agregar tarea */}
                 <div className="mb-6">
@@ -241,51 +258,66 @@ function DashboardPage() {
                                 task.completed ? "opacity-70 line-through" : ""
                             }`}
                         >
-                    {editingTask?.id === task.id ? (
-                        <div className="flex-grow">
-                            <input
-                                type="text"
-                                value={editedTaskTitle}
-                                onChange={(e) => setEditedTaskTitle(e.target.value)}
-                                className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <div className="flex mt-2 gap-2">
-                                <button
-                                    onClick={handleConfirmEdit}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-                                >
-                                    Guardar
-                                </button>
-                                <button
-                                    onClick={handleCancelEdit}
-                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            <span
-                                onClick={() => toggleComplete(task.id, task.completed)}
-                                className={`cursor-pointer select-none ${
-                                    task.completed ? "text-gray-500" : "text-gray-800"
-                                }`}
-                            >
-                                {task.title}
-                            </span>
-                            <div className="flex gap-4">
-                                <EditTask onEdit={() => handleEditClick(task)} />
-                                <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
-                                <button
-                                    onClick={() => openPomodoro(task)}
-                                    className="text-red-500 hover:text-red-700 font-bold"
-                                >
-                                    Pomodoro
-                                </button>
-                            </div>
-                        </>
-                    )}
+                            {editingTask?.id === task.id ? (
+                                <div className="flex-grow">
+                                    <input
+                                        type="text"
+                                        value={editedTaskTitle}
+                                        onChange={(e) => setEditedTaskTitle(e.target.value)}
+                                        className="w-full p-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <div className="flex mt-2 gap-2">
+                                        <button
+                                            onClick={handleConfirmEdit}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                                        >
+                                            Guardar
+                                        </button>
+                                        <button
+                                            onClick={handleCancelEdit}
+                                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <span
+                                        onClick={() => toggleComplete(task.id, task.completed)}
+                                        className={`cursor-pointer select-none ${
+                                            task.completed ? "text-gray-500" : "text-gray-800"
+                                        }`}
+                                    >
+                                        {task.title}
+                                    </span>
+                                    
+                                    <div className="flex gap-4">
+                                        {!task.completed && (
+                                            <EditTask onEdit={() => handleEditClick(task)} />
+                                        )}
+                                        <DeleteTask onDelete={() => handleDeleteTask(task.id)} />
+                                        {pomodoroMode ? (
+                                            !task.completed ? (
+                                                <button
+                                                    onClick={() => openPomodoro(task)}
+                                                    className="text-green-500 hover:text-green-700 font-bold"
+                                                >
+                                                    Pomodoro
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    disabled
+                                                    title="Tarea completada"
+                                                    className="text-gray-400 cursor-not-allowed font-bold"
+                                                >
+                                                    Pomodoro
+                                                </button>
+                                            )
+                                        ) : null}
+                                    </div>
+                                </>
+                            )}
                         </li>
                     ))}
                 </ul>
