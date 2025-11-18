@@ -7,6 +7,7 @@ import DashboardPage from './pages/dashboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { useAuth } from './hooks/useAuth';
 import CalendarPage from './pages/calendar.jsx';
+import NotFound from './pages/not-found.jsx';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -26,6 +27,8 @@ function App() {
           </ProtectedRoute>
         } 
       />
+      {/* Ruta catch-all para 404 - DEBE IR AL FINAL */}
+      <Route path='*' element={<NotFound />} />
     </Routes>
   )
 }
