@@ -17,7 +17,7 @@ import EditTask from "../components/Edit.jsx";
 import PomodoroTask from "../components/PomodoroTask.jsx";
 import Footer from "../components/Footer.jsx";
 import CoffeeDonation from "../components/CoffeeDonation";
-import { FaTasks, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaTasks, FaCheckCircle, FaClock, FaTimes, FaBars } from "react-icons/fa";
 
 function DashboardPage() {
     const [tasks, setTasks] = useState([]);
@@ -28,6 +28,7 @@ function DashboardPage() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [pomodoroTask, setPomodoroTask] = useState(null);
     const [pomodoroMode, setPomodoroMode] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -168,25 +169,75 @@ function DashboardPage() {
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800">
             <header
-                className={`fixed top-0 left-0 w-full bg-green-600 text-white py-4 px-8 flex flex-col sm:flex-row justify-between items-center z-50 transition-shadow ${
+                className={`fixed top-0 left-0 w-full bg-green-600 text-white py-4 px-6 flex justify-between items-center z-50 transition-shadow ${
                     isScrolled ? "shadow-xl" : "shadow-md"
                 }`}
             >
-                <h1 className="text-3xl font-bold mb-4 sm:mb-0">
+                {/* TÍTULO */}
+                <h1 className="text-2xl font-bold">
                     Hola, <span className="capitalize">{user?.displayName || "Usuario"}!</span>
                 </h1>
-                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
-                    <Link to="/calendar">
+
+                {/* BOTÓN HAMBURGUESA SOLO EN MÓVIL */}
+                <button
+                    className="text-3xl md:hidden"
+                    onClick={() => setMenuOpen((prev) => !prev)}
+                >
+                    {menuOpen ? <FaTimes /> : <FaBars />}
+                </button>
+
+                {/* MENÚ DESKTOP */}
+                <nav className="hidden md:flex items-center gap-6">
+                    <Link to="/dashboard/suggest" className="font-bold hover:underline">
+                        Dejar sugerencia
+                    </Link>
+
+                    <Link to="/dashboard/calendar" className="font-bold hover:underline">
                         Calendario
                     </Link>
+
                     <CoffeeDonation />
+
                     <button
                         onClick={handleSignOut}
                         className="px-4 py-2 bg-white text-green-700 font-semibold rounded-lg shadow hover:bg-green-100 transition-all"
                     >
                         Cerrar sesión
                     </button>
-                </div>
+                </nav>
+
+                {/* MENÚ MÓVIL DESPLEGABLE */}
+                {menuOpen && (
+                    <div className="absolute top-full left-0 w-full bg-green-700 flex flex-col items-center gap-6 py-6 md:hidden shadow-lg">
+                        <Link
+                            to="/dashboard/suggest"
+                            className="text-lg font-bold"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Dejar sugerencia
+                        </Link>
+
+                        <Link
+                            to="/dashboard/calendar"
+                            className="text-lg font-bold"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Calendario
+                        </Link>
+
+                        <CoffeeDonation />
+
+                        <button
+                            onClick={() => {
+                                handleSignOut();
+                                setMenuOpen(false);
+                            }}
+                            className="px-4 py-2 bg-white text-green-700 font-semibold rounded-lg shadow hover:bg-green-100 transition-all"
+                        >
+                            Cerrar sesión
+                        </button>
+                    </div>
+                )}
             </header>
 
             {/* CONTENIDO PRINCIPAL */}

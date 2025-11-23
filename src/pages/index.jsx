@@ -91,6 +91,95 @@ function Home() {
         </div>
       </section>
 
+      {/* Sección de Datos y Gráficas */}
+      {/* Sección de Datos y Gráficas */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h3 className="text-3xl font-bold text-gray-800 mb-6">
+            ¿Sabías que la mayoría abandona sus metas?
+          </h3>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-14 text-lg">
+            Estudios muestran que más del 70% de las personas dejan sus objetivos 
+            a la mitad. Pero con <span className="text-green-600 font-semibold">
+            Tic Time Manage</span> puedes ser parte del porcentaje que SÍ 
+            cumple lo que se propone.
+          </p>
+
+          {/* Gráficas */}
+          <div className="grid md:grid-cols-2 gap-12">
+
+            {/* Card 1: Abandono de actividades */}
+            <div className="bg-white rounded-2xl shadow p-8">
+              <h4 className="text-xl font-semibold text-gray-800 mb-6">
+                Actividades más abandonadas
+              </h4>
+
+              <div className="space-y-6">
+                {[
+                  { label: "Cursos online", value: 90 },
+                  { label: "Metas de año nuevo", value: 85 },
+                  { label: "Proyectos personales", value: 75 },
+                  { label: "Rutinas de ejercicio", value: 65 },
+                  { label: "Lectura de libros", value: 55 },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                      <span>{item.label}</span>
+                      <span>{item.value}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full"
+                        style={{ width: `${item.value}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 2: Con nuestra app */}
+            <div className="bg-white rounded-2xl shadow p-8">
+              <h4 className="text-xl font-semibold text-gray-800 mb-6">
+                Con nuestra app puedes lograr más
+              </h4>
+
+              <p className="text-gray-600 mb-6">
+                Usuarios que usan gestión del tiempo aumentan su tasa de éxito hasta un:
+              </p>
+
+              <div className="relative flex justify-center items-center">
+                <div className="w-48 h-48 rounded-full border-8 border-gray-200 flex items-center justify-center">
+                  <div className="w-40 h-40 rounded-full border-8 border-green-500 flex items-center justify-center">
+                    <span className="text-3xl font-extrabold text-gray-800">
+                      60%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-gray-600 mt-6">
+                De cumplimiento de objetivos <br />
+                <span className="text-green-600 font-semibold">
+                  cuando usan un sistema como Tic Time Manage
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Mensaje motivacional */}
+          <div className="mt-16 bg-gradient-to-r from-green-500 to-blue-500 text-white p-10 rounded-3xl shadow-lg">
+            <h4 className="text-2xl font-bold mb-2">
+              Conviértete en la persona que termina lo que empieza
+            </h4>
+            <p className="text-lg opacity-90">
+              Nuestra app no solo organiza tu tiempo: te da constancia, enfoque y claridad para cumplir tus metas.
+            </p>
+          </div>
+        </div>
+      </section>
+
+
       {/* Testimonios */}
       <section className="bg-gradient-to-br from-green-100 to-blue-100 py-24">
         <div className="max-w-6xl mx-auto px-6 text-center">
