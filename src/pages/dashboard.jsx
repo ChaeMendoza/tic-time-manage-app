@@ -18,6 +18,7 @@ import PomodoroTask from "../components/PomodoroTask.jsx";
 import Footer from "../components/Footer.jsx";
 import CoffeeDonation from "../components/CoffeeDonation";
 import { FaTasks, FaCheckCircle, FaClock, FaTimes, FaBars } from "react-icons/fa";
+import { launchConfetti } from "../utils/confetti";
 
 function DashboardPage() {
     const [tasks, setTasks] = useState([]);
@@ -29,6 +30,7 @@ function DashboardPage() {
     const [pomodoroTask, setPomodoroTask] = useState(null);
     const [pomodoroMode, setPomodoroMode] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [motivation, setMotivation] = useState("");
     const navigate = useNavigate();
     const auth = getAuth();
 
@@ -86,13 +88,28 @@ function DashboardPage() {
 
     const toggleComplete = async (taskId, currentState) => {
         const taskRef = doc(db, "tasks", taskId);
-        await updateDoc(taskRef, { completed: !currentState });
+        const newState = !currentState;
+
+        await updateDoc(taskRef, { completed: newState });
+
         setTasks((prev) =>
             prev.map((t) =>
-                t.id === taskId ? { ...t, completed: !currentState } : t
+                t.id === taskId ? { ...t, completed: newState } : t
             )
         );
+
+        if (newState === true) {
+            launchConfetti();
+
+            const randomMsg =
+                completionMessages[Math.floor(Math.random() * completionMessages.length)];
+
+            setMotivation(randomMsg);
+
+            setTimeout(() => setMotivation(""), 3000);
+        }
     };
+
 
     const handleEditClick = (task) => {
         setEditingTask(task);
@@ -141,6 +158,14 @@ function DashboardPage() {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter((t) => t.completed).length;
     const pendingTasks = totalTasks - completedTasks;
+
+    const completionMessages = [
+        "¡Excelente trabajo! 🌟",
+        "¡Cada paso cuenta, sigue así! 💪",
+        "¡Lo lograste! Una tarea menos ✔️",
+        "¡Vas increíble, no te detengas! 🚀",
+        "¡Productividad a otro nivel! 🔥"
+    ];
 
     const motivationalPhrases = [
         "¡Un pequeño paso cada día cuenta!",
@@ -300,6 +325,16 @@ function DashboardPage() {
                         </button>
                     </div>
                 </div>
+                {/* Frases Motivacionales */}
+                {motivation && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50">
+                        <div className="bg-white shadow-2xl rounded-2xl px-8 py-6 text-center animate-fadeInUp scale-105 border border-green-300">
+                            <p className="text-green-700 font-bold text-xl">
+                                {motivation}
+                            </p>
+                        </div>
+                    </div>
+                )}
                 {/* Lista de tareas */}
                 <ul>
                     {tasks.map((task) => (
